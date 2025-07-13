@@ -46,8 +46,8 @@ export default function Dashboard() {
   }
 
   const MainContent = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-      <div className="lg:col-span-2 space-y-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-96 lg:gap-8">
+      <div className="lg:col-span-2 space-y-auto">
         <DailyWorkout
           date={selectedDate}
           workout={selectedWorkout}
@@ -56,7 +56,7 @@ export default function Dashboard() {
         />
         <WeightTrendChart />
       </div>
-      <div className="space-y-6">
+      <div className="space-y-auto">
         <StatsCards total={totalWorkouts} streak={currentStreak} />
         <WorkoutCalendar 
           selectedDate={selectedDate}
