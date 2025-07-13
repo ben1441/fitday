@@ -40,7 +40,7 @@ const WeightTrendChart = () => {
         <CardDescription>Your weight progress over the last 6 months.</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-64 w-full">
+        <ChartContainer config={chartConfig} className="h-60 sm:h-72 w-full">
           <LineChart
             data={chartData}
             margin={{ top: 5, right: 20, left: -10, bottom: 5 }}

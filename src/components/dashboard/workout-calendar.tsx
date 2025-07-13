@@ -19,7 +19,7 @@ const WorkoutCalendar: FC<WorkoutCalendarProps> = ({ completions }) => {
         <CardTitle>Workout Calendar</CardTitle>
         <CardDescription>Green dots show completed workout days.</CardDescription>
       </CardHeader>
-      <CardContent className="flex justify-center p-0 sm:p-6">
+      <CardContent className="flex justify-center p-0 sm:p-4">
         <Calendar
           mode="multiple"
           selected={completedDays}

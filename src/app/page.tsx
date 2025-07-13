@@ -30,8 +30,8 @@ export default function Dashboard() {
   const isCompletedToday = completions[todayFormatted];
 
   const MainContent = () => (
-    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
-      <div className="xl:col-span-2 space-y-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+      <div className="lg:col-span-2 space-y-6">
         <DailyWorkout
           day={dayOfWeek}
           workout={todaysWorkout}
