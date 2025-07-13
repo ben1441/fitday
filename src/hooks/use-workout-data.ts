@@ -34,15 +34,13 @@ export const useWorkoutData = (userId?: string) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Only fetch data if we have a userId and a db connection.
-    if (!userId || !db) {
-      // If there's no user, we're "loaded" with default data.
-      // The auth provider will redirect to login if this is a protected route.
-      setIsLoaded(true);
-      return;
-    }
-
     const fetchData = async () => {
+      // Do not fetch if userId or db are not available.
+      if (!userId || !db) {
+        setIsLoaded(true); // Consider it "loaded" with default data
+        return;
+      }
+
       setIsLoaded(false);
       try {
         const userDocRef = doc(db, 'users', userId);
@@ -76,11 +74,11 @@ export const useWorkoutData = (userId?: string) => {
     setPlan(newPlan);
     try {
       const userDocRef = doc(db, 'users', userId);
-      await setDoc(userDocRef, { plan: newPlan, completions }, { merge: true });
+      await setDoc(userDocRef, { plan: newPlan }, { merge: true });
     } catch (error) {
       console.error("Failed to save plan to Firestore", error);
     }
-  }, [userId, completions]);
+  }, [userId]);
 
   const addCompletion = useCallback(async (date: string) => {
     if (!userId || !db) return;
@@ -88,11 +86,11 @@ export const useWorkoutData = (userId?: string) => {
     setCompletions(newCompletions);
     try {
       const userDocRef = doc(db, 'users', userId);
-      await setDoc(userDocRef, { plan, completions: newCompletions }, { merge: true });
+      await setDoc(userDocRef, { completions: newCompletions }, { merge: true });
     } catch (error) {
       console.error("Failed to save completions to Firestore", error);
     }
-  }, [userId, plan, completions]);
+  }, [userId, completions]);
   
   const totalWorkouts = Object.keys(completions).length;
 
@@ -102,6 +100,7 @@ export const useWorkoutData = (userId?: string) => {
     let streak = 0;
     let today = new Date();
     
+    // Check for today
     if (completions[format(today, 'yyyy-MM-dd')]) {
       streak = 1;
       let yesterday = subDays(today, 1);
@@ -109,7 +108,7 @@ export const useWorkoutData = (userId?: string) => {
         streak++;
         yesterday = subDays(yesterday, 1);
       }
-    } else {
+    } else { // If not today, check from yesterday
        let yesterday = subDays(today, 1);
        if(completions[format(yesterday, 'yyyy-MM-dd')]) {
          streak = 1;
