@@ -7,6 +7,9 @@ import { AuthProvider } from '@/components/auth-provider';
 export const metadata: Metadata = {
   title: 'FitDay',
   description: 'Your daily fitness tracker',
+  icons: {
+    icon: '/favicon.png',
+  },
 };
 
 export default function RootLayout({
