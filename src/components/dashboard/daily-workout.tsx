@@ -3,25 +3,31 @@
 import type { FC } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import type { Exercise, Day } from '@/lib/types';
+import type { Exercise } from '@/lib/types';
 import { Separator } from '@/components/ui/separator';
 import { Check, Info } from 'lucide-react';
+import { format, isToday } from 'date-fns';
 
 interface DailyWorkoutProps {
-  day: Day;
+  date: Date;
   workout: Exercise[];
   isCompleted: boolean;
   onComplete: () => void;
 }
 
-const DailyWorkout: FC<DailyWorkoutProps> = ({ day, workout, isCompleted, onComplete }) => {
+const DailyWorkout: FC<DailyWorkoutProps> = ({ date, workout, isCompleted, onComplete }) => {
+  const dayOfWeek = format(date, 'eeee');
+  const title = isToday(date) ? "Today's Workout" : `${dayOfWeek}'s Workout`;
+
   return (
     <Card className="h-full flex flex-col">
       <CardHeader>
         <CardTitle className="capitalize text-2xl">
-          {day}'s Workout
+          {title}
         </CardTitle>
-        <CardDescription>Your scheduled exercises for today.</CardDescription>
+        <CardDescription>
+            {format(date, "MMMM d, yyyy")}
+        </CardDescription>
       </CardHeader>
       <CardContent className="flex-grow">
         {workout.length > 0 ? (
@@ -50,12 +56,12 @@ const DailyWorkout: FC<DailyWorkoutProps> = ({ day, workout, isCompleted, onComp
           {isCompleted ? (
             <div className="flex items-center text-green-600 font-semibold w-full justify-center">
               <Check className="w-5 h-5 mr-2" />
-              <span>Workout completed for today. Great job!</span>
+              <span>Workout completed for this day. Great job!</span>
             </div>
           ) : (
             <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="font-semibold">Did you complete this workout today?</p>
-              <Button onClick={onComplete} className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white">
+              <p className="font-semibold">Did you complete this workout?</p>
+              <Button onClick={onComplete} className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white" disabled={new Date(date) > new Date()}>
                 <Check className="mr-2 h-4 w-4" /> Yes, I did!
               </Button>
             </div>

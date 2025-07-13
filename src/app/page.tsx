@@ -10,6 +10,7 @@ import WorkoutCalendar from '@/components/dashboard/workout-calendar';
 import WeightTrendChart from '@/components/dashboard/weight-trend-chart';
 import { Dumbbell, Pencil } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { addDays } from 'date-fns';
 
 export default function Dashboard() {
   const {
@@ -21,28 +22,46 @@ export default function Dashboard() {
     isLoaded,
   } = useWorkoutData();
 
-  const today = new Date();
-  const dayOfWeek = today
+  const [selectedDate, setSelectedDate] = React.useState(new Date());
+
+  const dayOfWeek = selectedDate
     .toLocaleString('en-US', { weekday: 'long' })
     .toLowerCase() as keyof typeof plan;
-  const todaysWorkout = plan[dayOfWeek];
-  const todayFormatted = today.toISOString().split('T')[0];
-  const isCompletedToday = completions[todayFormatted];
+  
+  const selectedWorkout = plan[dayOfWeek];
+  const selectedDateFormatted = selectedDate.toISOString().split('T')[0];
+  const isCompleted = completions[selectedDateFormatted];
+
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date) {
+      setSelectedDate(date);
+    }
+  };
+
+  const handleCompletion = () => {
+    // We add a day because of timezone issues making it a day behind
+    const correctedDate = addDays(selectedDate, 1);
+    addCompletion(correctedDate.toISOString().split('T')[0]);
+  }
 
   const MainContent = () => (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
       <div className="lg:col-span-2 space-y-6">
         <DailyWorkout
-          day={dayOfWeek}
-          workout={todaysWorkout}
-          isCompleted={isCompletedToday}
-          onComplete={() => addCompletion(todayFormatted)}
+          date={selectedDate}
+          workout={selectedWorkout}
+          isCompleted={isCompleted}
+          onComplete={handleCompletion}
         />
         <WeightTrendChart />
       </div>
-      <div className="lg:col-span-1 space-y-6">
+      <div className="space-y-6">
         <StatsCards total={totalWorkouts} streak={currentStreak} />
-        <WorkoutCalendar completions={completions} />
+        <WorkoutCalendar 
+          selectedDate={selectedDate}
+          onDateSelect={handleDateSelect}
+          completions={completions}
+        />
       </div>
     </div>
   );

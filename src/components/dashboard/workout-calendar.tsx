@@ -4,14 +4,18 @@ import type { FC } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Calendar } from '@/components/ui/calendar';
 import type { CompletionData } from '@/lib/types';
-import { subDays } from 'date-fns';
 
 interface WorkoutCalendarProps {
+  selectedDate: Date;
+  onDateSelect: (date: Date | undefined) => void;
   completions: CompletionData;
 }
 
-const WorkoutCalendar: FC<WorkoutCalendarProps> = ({ completions }) => {
-  const completedDays = Object.keys(completions).map(dateStr => new Date(dateStr));
+const WorkoutCalendar: FC<WorkoutCalendarProps> = ({ selectedDate, onDateSelect, completions }) => {
+  const completedDays = Object.keys(completions).map(dateStr => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  });
   
   return (
     <Card>
@@ -21,8 +25,9 @@ const WorkoutCalendar: FC<WorkoutCalendarProps> = ({ completions }) => {
       </CardHeader>
       <CardContent className="flex justify-center p-0 sm:p-4">
         <Calendar
-          mode="multiple"
-          selected={completedDays}
+          mode="single"
+          selected={selectedDate}
+          onSelect={onDateSelect}
           modifiers={{
             completed: completedDays,
           }}
@@ -34,7 +39,6 @@ const WorkoutCalendar: FC<WorkoutCalendarProps> = ({ completions }) => {
             day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
           }}
           disabled={{ after: new Date() }}
-          month={subDays(new Date(), 0)}
         />
       </CardContent>
     </Card>
