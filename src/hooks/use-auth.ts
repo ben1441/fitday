@@ -7,7 +7,6 @@ import {
   signInWithPopup,
   signOut as firebaseSignOut,
   type User,
-  type Auth,
 } from 'firebase/auth';
 import { auth as firebaseAuth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
@@ -59,6 +58,12 @@ export const useAuth = () => {
             variant: "destructive",
             title: "Configuration Needed",
             description: "Google Sign-In is not enabled for this project. Please enable it in the Firebase console.",
+        });
+      } else if (error.code === 'auth/unauthorized-domain') {
+        toast({
+            variant: "destructive",
+            title: "Domain Not Authorized",
+            description: `This domain is not authorized for OAuth operations. Please add '${window.location.hostname}' to the authorized domains list in your Firebase project's authentication settings.`,
         });
       } else {
         toast({
