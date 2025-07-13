@@ -7,8 +7,10 @@ import { AuthProvider } from '@/components/auth-provider';
 export const metadata: Metadata = {
   title: 'FitDay',
   description: 'Your daily fitness tracker',
+  manifest: '/manifest.webmanifest',
   icons: {
     icon: '/favicon.png',
+    apple: '/icon-192x192.png',
   },
 };
 
@@ -26,6 +28,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
+        <meta name="theme-color" content="#3498db" />
       </head>
       <body
         className={cn('font-body antialiased h-full')}
