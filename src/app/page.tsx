@@ -40,7 +40,7 @@ export default function Dashboard() {
         />
         <WeightTrendChart />
       </div>
-      <div className="space-y-6">
+      <div className="space-y-6 lg:space-y-6">
         <StatsCards total={totalWorkouts} streak={currentStreak} />
         <WorkoutCalendar completions={completions} />
       </div>
