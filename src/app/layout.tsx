@@ -4,15 +4,28 @@ import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
 import { AuthProvider } from '@/components/auth-provider';
 
+const APP_NAME = "FitDay";
+const APP_DESCRIPTION = "Your daily fitness tracker";
+
 export const metadata: Metadata = {
-  title: 'FitDay',
-  description: 'Your daily fitness tracker',
+  title: APP_NAME,
+  description: APP_DESCRIPTION,
   manifest: '/manifest.webmanifest',
   icons: {
-    icon: './favicon.png',
-    apple: './favicon.png',
+    icon: '/favicon.png?v=2',
+    apple: '/favicon.png?v=2',
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: APP_NAME,
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  applicationName: APP_NAME,
 };
+
 
 export default function RootLayout({
   children,
