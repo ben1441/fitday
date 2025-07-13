@@ -34,14 +34,10 @@ export const useWorkoutData = (userId?: string) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    if (!userId) {
-      setIsLoaded(true);
-      return;
-    }
-    if (!db) {
-      console.error("Firestore is not initialized. Loading default data.");
-      setPlan(defaultPlan);
-      setCompletions({});
+    // Only fetch data if we have a userId and a db connection.
+    if (!userId || !db) {
+      // If there's no user, we're "loaded" with default data.
+      // The auth provider will redirect to login if this is a protected route.
       setIsLoaded(true);
       return;
     }
@@ -64,7 +60,7 @@ export const useWorkoutData = (userId?: string) => {
         }
       } catch (error: any) {
         console.error("Failed to load data from Firestore:", error);
-        // Set default data on error to prevent app crash, especially for offline errors
+        // On error, fall back to default data to prevent app crash
         setPlan(defaultPlan);
         setCompletions({});
       } finally {
