@@ -9,8 +9,8 @@ export const metadata: Metadata = {
   description: 'Your daily fitness tracker',
   manifest: '/manifest.webmanifest',
   icons: {
-    icon: '/favicon.png',
-    apple: '/icon-192x192.png',
+    icon: './favicon.png',
+    apple: './favicon.png',
   },
 };
 
