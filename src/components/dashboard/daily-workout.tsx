@@ -21,7 +21,7 @@ const DailyWorkout: FC<DailyWorkoutProps> = ({ date, workout, isCompleted, onCom
   const isFutureDate = startOfDay(date) > startOfDay(new Date());
 
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="h-auto flex flex-col">
       <CardHeader>
         <CardTitle className="capitalize text-2xl">
           {title}
