@@ -95,11 +95,11 @@ export default function Dashboard() {
             <div className='flex items-center gap-4'>
               <Button asChild>
                 <Link href="/edit-plan">
-                  <Pencil className="mr-2 h-4 w-4" /> Edit Plan
+                  <Pencil className="mr-2 h-4 w-4" /> Edit
                 </Link>
               </Button>
               <Button variant="outline" onClick={signOut}>
-                <LogOut className="mr-2 h-4 w-4" /> Logout
+                <LogOut className="mr-2 h-4 w-4" />
               </Button>
             </div>
           </div>
