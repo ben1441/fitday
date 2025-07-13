@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -18,16 +18,38 @@ import { weekDays } from '@/lib/types';
 import { Plus, Trash2, Save, Bot } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AiSuggestions from './ai-suggestions';
+import { useAuth } from '@/hooks/use-auth';
+import { Skeleton } from '../ui/skeleton';
 
 export default function PlanEditor() {
-  const { plan: initialPlan, updatePlan, isLoaded } = useWorkoutData();
+  const { auth } = useAuth();
+  const { plan: initialPlan, updatePlan, isLoaded } = useWorkoutData(auth.user?.uid);
   const [editedPlan, setEditedPlan] = useState<WorkoutPlan | null>(null);
   const { toast } = useToast();
   const [isAiSheetOpen, setIsAiSheetOpen] = useState(false);
 
+  useEffect(() => {
+    if (isLoaded) {
+      setEditedPlan(null); // Reset local changes when new data is loaded
+    }
+  }, [isLoaded, initialPlan]);
+
+
   if (!isLoaded) {
-    // Or a proper skeleton loader
-    return <div>Loading plan...</div>;
+    return (
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-72" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-24 w-full" />
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   const currentPlan = editedPlan || initialPlan;
@@ -99,7 +121,7 @@ export default function PlanEditor() {
           {weekDays.map(day => (
             <TabsContent key={day} value={day}>
               <div className="space-y-4 pt-4">
-                {currentPlan[day].length > 0 ? (
+                {currentPlan[day]?.length > 0 ? (
                   currentPlan[day].map(exercise => (
                     <div
                       key={exercise.id}

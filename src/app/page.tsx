@@ -8,11 +8,13 @@ import DailyWorkout from '@/components/dashboard/daily-workout';
 import StatsCards from '@/components/dashboard/stats-cards';
 import WorkoutCalendar from '@/components/dashboard/workout-calendar';
 import WeightTrendChart from '@/components/dashboard/weight-trend-chart';
-import { Dumbbell, Pencil } from 'lucide-react';
+import { Dumbbell, Pencil, LogOut } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { addDays } from 'date-fns';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function Dashboard() {
+  const { auth, signOut } = useAuth();
   const {
     plan,
     completions,
@@ -20,7 +22,7 @@ export default function Dashboard() {
     totalWorkouts,
     currentStreak,
     isLoaded,
-  } = useWorkoutData();
+  } = useWorkoutData(auth.user?.uid);
 
   const [selectedDate, setSelectedDate] = React.useState(new Date());
 
@@ -39,8 +41,7 @@ export default function Dashboard() {
   };
 
   const handleCompletion = () => {
-    // We add a day because of timezone issues making it a day behind
-    const correctedDate = addDays(selectedDate, 1);
+    const correctedDate = addDays(selectedDate, 0);
     addCompletion(correctedDate.toISOString().split('T')[0]);
   }
 
@@ -91,11 +92,16 @@ export default function Dashboard() {
               <Dumbbell className="h-8 w-8 text-primary" />
               <h1 className="text-2xl font-bold text-primary-dark">FitDay</h1>
             </div>
-            <Button asChild>
-              <Link href="/edit-plan">
-                <Pencil className="mr-2 h-4 w-4" /> Edit Plan
-              </Link>
-            </Button>
+            <div className='flex items-center gap-4'>
+              <Button asChild>
+                <Link href="/edit-plan">
+                  <Pencil className="mr-2 h-4 w-4" /> Edit Plan
+                </Link>
+              </Button>
+              <Button variant="outline" onClick={signOut}>
+                <LogOut className="mr-2 h-4 w-4" /> Logout
+              </Button>
+            </div>
           </div>
         </div>
       </header>

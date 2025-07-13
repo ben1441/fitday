@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { WorkoutPlan, CompletionData, Day, weekDays } from '@/lib/types';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { format, subDays } from 'date-fns';
 
 const defaultPlan: WorkoutPlan = {
@@ -26,52 +28,65 @@ const defaultPlan: WorkoutPlan = {
   saturday: [],
 };
 
-const WORKOUT_PLAN_KEY = 'fitday_workout_plan';
-const COMPLETION_DATA_KEY = 'fitday_completion_data';
-
-export const useWorkoutData = () => {
+export const useWorkoutData = (userId?: string) => {
   const [plan, setPlan] = useState<WorkoutPlan>(defaultPlan);
   const [completions, setCompletions] = useState<CompletionData>({});
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    try {
-      const savedPlan = localStorage.getItem(WORKOUT_PLAN_KEY);
-      if (savedPlan) {
-        setPlan(JSON.parse(savedPlan));
-      }
+    if (!userId) return;
 
-      const savedCompletions = localStorage.getItem(COMPLETION_DATA_KEY);
-      if (savedCompletions) {
-        setCompletions(JSON.parse(savedCompletions));
-      }
-    } catch (error) {
-      console.error("Failed to load data from localStorage", error);
-    } finally {
-      setIsLoaded(true);
-    }
-  }, []);
+    const fetchData = async () => {
+      setIsLoaded(false);
+      try {
+        const userDocRef = doc(db, 'users', userId);
+        const userDocSnap = await getDoc(userDocRef);
 
-  const updatePlan = useCallback((newPlan: WorkoutPlan) => {
+        if (userDocSnap.exists()) {
+          const data = userDocSnap.data();
+          setPlan(data.plan || defaultPlan);
+          setCompletions(data.completions || {});
+        } else {
+          // If the user document doesn't exist, create it with the default plan
+          await setDoc(userDocRef, { plan: defaultPlan, completions: {} });
+          setPlan(defaultPlan);
+          setCompletions({});
+        }
+      } catch (error) {
+        console.error("Failed to load data from Firestore", error);
+        // Set default data on error to prevent app crash
+        setPlan(defaultPlan);
+        setCompletions({});
+      } finally {
+        setIsLoaded(true);
+      }
+    };
+    
+    fetchData();
+  }, [userId]);
+
+  const updatePlan = useCallback(async (newPlan: WorkoutPlan) => {
+    if (!userId) return;
     setPlan(newPlan);
     try {
-      localStorage.setItem(WORKOUT_PLAN_KEY, JSON.stringify(newPlan));
+      const userDocRef = doc(db, 'users', userId);
+      await setDoc(userDocRef, { plan: newPlan, completions }, { merge: true });
     } catch (error) {
-      console.error("Failed to save plan to localStorage", error);
+      console.error("Failed to save plan to Firestore", error);
     }
-  }, []);
+  }, [userId, completions]);
 
-  const addCompletion = useCallback((date: string) => {
-    setCompletions(prev => {
-      const newCompletions = { ...prev, [date]: true };
-      try {
-        localStorage.setItem(COMPLETION_DATA_KEY, JSON.stringify(newCompletions));
-      } catch (error) {
-        console.error("Failed to save completions to localStorage", error);
-      }
-      return newCompletions;
-    });
-  }, []);
+  const addCompletion = useCallback(async (date: string) => {
+    if (!userId) return;
+    const newCompletions = { ...completions, [date]: true };
+    setCompletions(newCompletions);
+    try {
+      const userDocRef = doc(db, 'users', userId);
+      await setDoc(userDocRef, { plan, completions: newCompletions }, { merge: true });
+    } catch (error) {
+      console.error("Failed to save completions to Firestore", error);
+    }
+  }, [userId, plan, completions]);
   
   const totalWorkouts = Object.keys(completions).length;
 
@@ -81,17 +96,14 @@ export const useWorkoutData = () => {
     let streak = 0;
     let today = new Date();
     
-    // check if today is completed, if so, start streak from 1
     if (completions[format(today, 'yyyy-MM-dd')]) {
       streak = 1;
       let yesterday = subDays(today, 1);
-      // check previous days
       while (completions[format(yesterday, 'yyyy-MM-dd')]) {
         streak++;
         yesterday = subDays(yesterday, 1);
       }
     } else {
-       // if today is not completed, check if yesterday was completed
        let yesterday = subDays(today, 1);
        if(completions[format(yesterday, 'yyyy-MM-dd')]) {
          streak = 1;

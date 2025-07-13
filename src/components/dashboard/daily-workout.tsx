@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import type { Exercise } from '@/lib/types';
 import { Separator } from '@/components/ui/separator';
 import { Check, Info } from 'lucide-react';
-import { format, isToday } from 'date-fns';
+import { format, isToday, startOfDay } from 'date-fns';
 
 interface DailyWorkoutProps {
   date: Date;
@@ -18,6 +18,7 @@ interface DailyWorkoutProps {
 const DailyWorkout: FC<DailyWorkoutProps> = ({ date, workout, isCompleted, onComplete }) => {
   const dayOfWeek = format(date, 'eeee');
   const title = isToday(date) ? "Today's Workout" : `${dayOfWeek}'s Workout`;
+  const isFutureDate = startOfDay(date) > startOfDay(new Date());
 
   return (
     <Card className="h-full flex flex-col">
@@ -61,7 +62,7 @@ const DailyWorkout: FC<DailyWorkoutProps> = ({ date, workout, isCompleted, onCom
           ) : (
             <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4">
               <p className="font-semibold">Did you complete this workout?</p>
-              <Button onClick={onComplete} className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white" disabled={new Date(date) > new Date()}>
+              <Button onClick={onComplete} className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white" disabled={isFutureDate}>
                 <Check className="mr-2 h-4 w-4" /> Yes, I did!
               </Button>
             </div>

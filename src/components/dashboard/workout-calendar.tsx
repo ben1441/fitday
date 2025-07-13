@@ -36,7 +36,7 @@ const WorkoutCalendar: FC<WorkoutCalendarProps> = ({ selectedDate, onDateSelect,
           }}
           className="p-0"
           classNames={{
-            day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+            day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-full",
           }}
           disabled={{ after: new Date() }}
         />
