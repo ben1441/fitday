@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { WorkoutPlan, CompletionData, Day, weekDays } from '@/lib/types';
+import { WorkoutPlan, CompletionData } from '@/lib/types';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { format, subDays } from 'date-fns';
@@ -34,7 +34,17 @@ export const useWorkoutData = (userId?: string) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      setIsLoaded(true);
+      return;
+    }
+    if (!db) {
+      console.error("Firestore is not initialized. Loading default data.");
+      setPlan(defaultPlan);
+      setCompletions({});
+      setIsLoaded(true);
+      return;
+    }
 
     const fetchData = async () => {
       setIsLoaded(false);
@@ -52,9 +62,9 @@ export const useWorkoutData = (userId?: string) => {
           setPlan(defaultPlan);
           setCompletions({});
         }
-      } catch (error) {
-        console.error("Failed to load data from Firestore", error);
-        // Set default data on error to prevent app crash
+      } catch (error: any) {
+        console.error("Failed to load data from Firestore:", error);
+        // Set default data on error to prevent app crash, especially for offline errors
         setPlan(defaultPlan);
         setCompletions({});
       } finally {
@@ -66,7 +76,7 @@ export const useWorkoutData = (userId?: string) => {
   }, [userId]);
 
   const updatePlan = useCallback(async (newPlan: WorkoutPlan) => {
-    if (!userId) return;
+    if (!userId || !db) return;
     setPlan(newPlan);
     try {
       const userDocRef = doc(db, 'users', userId);
@@ -77,7 +87,7 @@ export const useWorkoutData = (userId?: string) => {
   }, [userId, completions]);
 
   const addCompletion = useCallback(async (date: string) => {
-    if (!userId) return;
+    if (!userId || !db) return;
     const newCompletions = { ...completions, [date]: true };
     setCompletions(newCompletions);
     try {
